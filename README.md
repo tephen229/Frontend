@@ -15,6 +15,14 @@ Silakan akses hasil implementasi langsung dari sistem kami melalui tautan di baw
 | **Frontend App** (Website) | [🌐 Buka Aplikasi Frontend](https://frontend-roan-theta-25.vercel.app/) |
 | **Backend API Gateway** | [⚡ Buka Endpoint Backend](https://backend-pied-nine-13.vercel.app) |
 
+
+---
+
+## 📺 Video Demo & Presentation
+
+Ingin melihat bagaimana sistem ini bekerja secara langsung? Kamu bisa menonton video demonstrasi lengkapnya di YouTube melalui tautan berikut:
+
+* 🎬 **Tonton di YouTube:** [🎥 Video Demo Aplikasi Infovest](yountube.com)
 ---
 
 ## 📦 Source Code & Repositories
