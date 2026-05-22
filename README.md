@@ -22,7 +22,7 @@ Silakan akses hasil implementasi langsung dari sistem kami melalui tautan di baw
 
 Ingin melihat bagaimana sistem ini bekerja secara langsung? Kamu bisa menonton video demonstrasi lengkapnya di YouTube melalui tautan berikut:
 
-* 🎬 **Tonton di YouTube:** [🎥 Video Demo Aplikasi Infovest](yountube.com)
+* 🎬 **Tonton di YouTube:** [🎥 Video Demo Aplikasi Infovest](youtube.com)
 ---
 
 ## 📦 Source Code & Repositories
