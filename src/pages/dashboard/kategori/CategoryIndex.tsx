@@ -5,7 +5,7 @@ const BASE_URL = "https://backend-pied-nine-13.vercel.app/categories";
 
 type Category = {
   id: number;
-  nama: string;
+  name: string;
 };
 
 const TABLE_HEADERS = ["No", "Nama Kategori", "Aksi"];
@@ -116,7 +116,7 @@ export default function CategoryIndex() {
               <tr key={item.id} className="border-b border-gray-50 hover:bg-rose-50/40 transition-colors">
                 <td className="px-4 py-3.5 text-sm text-gray-300 w-10">{index + 1}</td>
                 <td className="px-4 py-3.5 text-sm font-semibold text-[#1a0a10]">
-                  {item.nama}
+                  {item.name}
                 </td>
                 <td className="px-4 py-3.5">
                   <div className="flex gap-2">
