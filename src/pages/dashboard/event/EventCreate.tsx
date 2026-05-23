@@ -7,17 +7,15 @@ import { useNavigate } from "react-router-dom";
 // ===== SERVICE =====
 const BASE_URL = "https://backend-pied-nine-13.vercel.app/events";
 const CATEGORY_URL = "https://backend-pied-nine-13.vercel.app/categories";
-const PEMBICARA_URL = "https://backend-pied-nine-13.vercel.app/speakers"; // ← PERBAIKAN 1: Sesuaikan route backend
+const PEMBICARA_URL = "https://backend-pied-nine-13.vercel.app/speakers"; 
 
 type Category = { id: number; nama: string };
-type Pembicara = { id: number; name: string }; // ← PERBAIKAN 2: Gunakan 'name' sesuai prisma
+type Pembicara = { id: number; name: string }; 
 
 const getCategories = async (): Promise<Category[]> => {
   const res = await fetch(CATEGORY_URL);
   if (!res.ok) throw new Error("Gagal ambil kategori");
   const json = await res.json();
-  
-  // Jika backend mengembalikan { data: [...] }, ambil json.data. Jika langsung array, gunakan json.
   return Array.isArray(json) ? json : json.data || [];
 };
 
@@ -32,7 +30,7 @@ const getPembicara = async (): Promise<Pembicara[]> => {
 const schema = z.object({
   name: z.string().min(3, "Nama event minimal 3 karakter"),
   categoryId: z.string().min(1, "Kategori wajib dipilih"),
-  pembicaraId: z.string().min(1, "Pembicara wajib dipilih"), // ← PERBAIKAN 4: Ganti nama key form jadi pembicaraId
+  pembicaraId: z.string().min(1, "Pembicara wajib dipilih"), 
   date: z.string().min(1, "Tanggal wajib diisi"),
   location: z.string().min(3, "Lokasi minimal 3 karakter"),
   description: z.string().min(5, "Deskripsi minimal 5 karakter"),
@@ -45,22 +43,27 @@ export default function EventCreate() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [speakers, setSpeakers] = useState<Pembicara[]>([]); 
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
-    try {
-      const [catData, speakerData] = await Promise.all([getCategories(), getPembicara()]);
-      console.log("Data Kategori:", catData);   // ← Membantu cek isi array di Console F12
-      console.log("Data Pembicara:", speakerData); // ← Membantu cek isi array di Console F12
-      
-      setCategories(catData);
-      setSpeakers(speakerData);
-    } catch (error) {
-      console.error("Gagal memuat komponen data select dropdown:", error);
-    }
-  };
+      try {
+        setLoading(true);
+        const [catData, speakerData] = await Promise.all([getCategories(), getPembicara()]);
+        
+        console.log("Data Kategori:", catData);   
+        console.log("Data Pembicara:", speakerData); 
+        
+        setCategories(catData);
+        setSpeakers(speakerData);
+      } catch (error) {
+        console.error("Gagal memuat komponen data select dropdown:", error);
+      } finally {
+        setLoading(false);
+      }
+    }; // ← DI SINI: Sekarang fungsi loadData ditutup dengan benar
 
-  loadData();
+    loadData();
   }, []);
 
   const {
@@ -79,12 +82,13 @@ export default function EventCreate() {
           dateEvent: data.date,
           location: data.location,
           categoryId: Number(data.categoryId),
-          pembicaraId: Number(data.pembicaraId), // ← PERBAIKAN 5: Kirim key pembicaraId ke controller
+          pembicaraId: Number(data.pembicaraId), 
           description: data.description,
         }),
       });
 
-      if (!res.ok) throw new Error("Gagal");
+      if (!res.ok) throw new Error("Gagal menyimpan data ke server");
+      
       alert("Event berhasil dibuat!");
       navigate("/dashboard/event");
       
@@ -93,6 +97,10 @@ export default function EventCreate() {
       alert("Gagal membuat event. Cek koneksi ke server.");
     }
   };
+
+  if (loading) {
+    return <div className="text-center mt-10 text-gray-500">Memuat data dropdown...</div>;
+  }
 
   return (
     <div className="max-w-xl mx-auto mt-10 p-6 border rounded-xl shadow bg-white">
@@ -104,7 +112,7 @@ export default function EventCreate() {
         {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
 
         {/* Dropdown Kategori */}
-        <select {...register("categoryId")} className="border p-3 rounded-lg">
+        <select {...register("categoryId")} className="border p-3 rounded-lg bg-white">
           <option value="">Pilih Kategori</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>{cat.nama}</option>
@@ -113,10 +121,9 @@ export default function EventCreate() {
         {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId.message}</p>}
 
         {/* Dropdown Pembicara */}
-        <select {...register("pembicaraId")} className="border p-3 rounded-lg">
+        <select {...register("pembicaraId")} className="border p-3 rounded-lg bg-white">
           <option value="">Pilih Pembicara</option>
           {speakers.map((spk) => (
-            // PERBAIKAN 6: Ganti spk.nama menjadi spk.name agar teks namanya muncul
             <option key={spk.id} value={spk.id}>{spk.name}</option>
           ))}
         </select>
@@ -135,8 +142,9 @@ export default function EventCreate() {
         {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
 
         <button
+          type="submit"
           disabled={isSubmitting}
-          className="bg-[#7B1D3F] hover:bg-[#9e2550] text-white py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
+          className="bg-[#7B1D3F] hover:bg-[#9e2550] text-white py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 cursor-pointer"
         >
           {isSubmitting ? "Menyimpan..." : "Simpan Event"}
         </button>

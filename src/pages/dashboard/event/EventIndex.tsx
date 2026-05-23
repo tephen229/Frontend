@@ -2,10 +2,8 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 // ===== SERVICE =====
-// PERBAIKAN: Mengubah URL lokal ke URL Backend Vercel yang sudah live
 const BASE_URL = "https://backend-pied-nine-13.vercel.app/events";
 
-// PERBAIKAN 1: Sesuaikan tipe data dengan skema asli Prisma & Controller Backend
 type Event = {
   id: number;
   name: string;
@@ -20,13 +18,15 @@ type Event = {
 
 const getAllEvents = async (): Promise<Event[]> => {
   const res = await fetch(BASE_URL);
-  if (!res.ok) throw new Error("Gagal mengambil data event");
-  return res.json();
+  if (!res.ok) throw new Error("Gagal mengambil data event dari server.");
+  const json = await res.json();
+  // Jaga-jaga jika backend membungkus datanya dalam properti .data
+  return Array.isArray(json) ? json : json.data || [];
 };
 
 const deleteEvent = async (id: number) => {
   const res = await fetch(`${BASE_URL}/${id}`, { method: "DELETE" });
-  if (!res.ok) throw new Error("Gagal menghapus event");
+  if (!res.ok) throw new Error("Gagal menghapus data event.");
   return res.json();
 };
 
@@ -34,13 +34,17 @@ const deleteEvent = async (id: number) => {
 export default function EventIndex() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null); // ⚠️ Diubah ke useState aktif
 
   const fetchData = async () => {
     try {
       setLoading(true);
+      setError(null); // Reset status error sebelum mengambil data
       const data = await getAllEvents();
       setEvents(data);
+    } catch (err: any) {
+      console.error("Error Fetch Event:", err);
+      setError(err.message || "Terjadi kesalahan saat memuat data.");
     } finally {
       setLoading(false);
     }
@@ -55,8 +59,9 @@ export default function EventIndex() {
     try {
       await deleteEvent(id);
       setEvents((prev) => prev.filter((e) => e.id !== id));
-    } catch {
-      alert("Gagal menghapus event.");
+      alert("Event berhasil dihapus!");
+    } catch (err: any) {
+      alert(err.message || "Gagal menghapus event.");
     }
   };
 
@@ -90,7 +95,6 @@ export default function EventIndex() {
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
-              {/* PERBAIKAN 2: Menghapus kolom "Status" karena tidak ada di schema.prisma */}
               {["No", "Nama Event", "Kategori", "Tanggal", "Aksi"].map((h) => (
                 <th
                   key={h}
@@ -113,8 +117,8 @@ export default function EventIndex() {
 
             {!loading && error && (
               <tr>
-                <td colSpan={5} className="text-center py-10 text-red-400 text-sm">
-                  {error}
+                <td colSpan={5} className="text-center py-10 text-red-500 font-medium text-sm">
+                  ⚠️ {error}
                 </td>
               </tr>
             )}
@@ -140,17 +144,16 @@ export default function EventIndex() {
 
                 <td className="px-4 py-3.5">
                   <span className="text-xs font-medium bg-rose-50 text-[#7B1D3F] px-2.5 py-1 rounded-full">
-                    {/* PERBAIKAN 3: Membaca properti nama dari objek relasi category */}
                     {item.category?.nama || "Tanpa Kategori"}
                   </span>
                 </td>
 
                 <td className="px-4 py-3.5 text-sm text-gray-500">
-                  {new Date(item.dateEvent).toLocaleDateString("id-ID", {
+                  {item.dateEvent ? new Date(item.dateEvent).toLocaleDateString("id-ID", {
                     day: "numeric",
                     month: "long",
                     year: "numeric",
-                  })}
+                  }) : "-"}
                 </td>
 
                 <td className="px-4 py-3.5">
@@ -175,7 +178,7 @@ export default function EventIndex() {
         </table>
 
         <div className="px-4 py-3 border-t border-gray-50">
-          <span className="text-xs text-gray-300">Menampilkan {events.length} event</span>
+          <span className="text-xs text-gray-400">Menampilkan {events.length} event</span>
         </div>
       </div>
     </div>
