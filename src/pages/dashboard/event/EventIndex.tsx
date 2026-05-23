@@ -12,7 +12,7 @@ type Event = {
   description: string;
   category?: {
     id: number;
-    nama: string;
+    name: string;
   };
 };
 
@@ -144,7 +144,7 @@ export default function EventIndex() {
 
                 <td className="px-4 py-3.5">
                   <span className="text-xs font-medium bg-rose-50 text-[#7B1D3F] px-2.5 py-1 rounded-full">
-                    {item.category?.nama || "Tanpa Kategori"}
+                    {item.category?.name || "Tanpa Kategori"}
                   </span>
                 </td>
 
