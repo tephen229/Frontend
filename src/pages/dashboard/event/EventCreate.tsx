@@ -9,7 +9,7 @@ const BASE_URL = "https://backend-pied-nine-13.vercel.app/events";
 const CATEGORY_URL = "https://backend-pied-nine-13.vercel.app/categories";
 const PEMBICARA_URL = "https://backend-pied-nine-13.vercel.app/speakers"; 
 
-type Category = { id: number; nama: string };
+type Category = { id: number; name: string };
 type Pembicara = { id: number; name: string }; 
 
 const getCategories = async (): Promise<Category[]> => {
@@ -115,7 +115,7 @@ export default function EventCreate() {
         <select {...register("categoryId")} className="border p-3 rounded-lg bg-white">
           <option value="">Pilih Kategori</option>
           {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>{cat.nama}</option>
+            <option key={cat.id} value={cat.id}>{cat.name}</option>
           ))}
         </select>
         {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId.message}</p>}
