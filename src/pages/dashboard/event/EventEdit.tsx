@@ -37,7 +37,7 @@ export default function EventEdit() {
         
         // Ambil data dropdown pendukung
         const resCat = await axios.get(`${API_URL}/categories`);
-        const resPem = await axios.get(`${API_URL}/speakers`); // ️ FIX 1: Ubah /pembicara menjadi /speakers
+        const resPem = await axios.get(`${API_URL}/speakers`); 
         
         setCategories(resCat.data);
         setPembicaras(resPem.data);
@@ -109,7 +109,7 @@ export default function EventEdit() {
             <option value="">Pilih Kategori</option>
             {categories.map((c) => (
               // ️ FIX 2: Menggunakan c.nama sesuai database prisma kategori Anda
-              <option key={c.id} value={c.id}>{c.nama}</option> 
+              <option key={c.id} value={c.id}>{c.name}</option> 
             ))}
           </select>
           {errors.categoryId && <p className="text-red-500 text-xs mt-1">{errors.categoryId.message}</p>}

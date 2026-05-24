@@ -9,7 +9,7 @@ const API_URL = import.meta.env.VITE_API_URL || "https://backend-pied-nine-13.ve
 
 const schema = z.object({
   name: z.string().min(3, "Nama minimal 3 karakter"),
-  job: z.string().min(3, "Pekerjaan minimal 3 karakter"),
+  job: z.string().min(3, "Pekerjaan minimal 3 karakter"), // Di form kita tetap pakai 'job' untuk input
   email: z.string().email("Email tidak valid"),
   photo: z.string().nullable().optional(),
   bio: z.string().min(5, "Bio minimal 5 karakter"),
@@ -28,11 +28,13 @@ export default function PembicaraEdit() {
   useEffect(() => {
     const loadSpeaker = async () => {
       try {
-        const response = await axios.get(`${API_URL}/pembicara/${id}`);
+        // PERBAIKAN 1: Endpoint diubah ke /speakers
+        const response = await axios.get(`${API_URL}/speakers/${id}`);
         const data = response.data;
         
         setValue("name", data.name, { shouldValidate: true });
-        setValue("job", data.job, { shouldValidate: true });
+        // PERBAIKAN 2: Backend menggunakan field 'role', bukan 'job'
+        setValue("job", data.role, { shouldValidate: true }); 
         setValue("email", data.email, { shouldValidate: true });
         setValue("photo", data.photo, { shouldValidate: true });
         setValue("bio", data.bio || "", { shouldValidate: true });
@@ -48,9 +50,21 @@ export default function PembicaraEdit() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      await axios.put(`${API_URL}/pembicara/${id}`, data);
+      // PERBAIKAN 3: Menyiapkan payload yang sesuai dengan struktur backend
+      const payload = {
+        name: data.name,
+        role: data.job, // Mapping kembali: form data 'job' dikirim sebagai 'role' ke backend
+        email: data.email,
+        photo: data.photo,
+        bio: data.bio,
+        status: data.status
+      };
+
+      // PERBAIKAN 4: Endpoint diubah ke /speakers
+      await axios.put(`${API_URL}/speakers/${id}`, payload);
+      
       alert("Data pembicara berhasil diperbarui!");
-      navigate("/dashboard/pembicara"); // ✅ Tetap aman ke /pembicara
+      navigate("/dashboard/pembicara");
     } catch (error: any) {
       console.error(error);
       alert(error.response?.data?.message || "Gagal memperbarui pembicara.");
@@ -70,6 +84,7 @@ export default function PembicaraEdit() {
 
         <div>
           <label className="text-xs font-bold text-gray-600 block mb-1">Pekerjaan</label>
+          {/* Input form tetap diregister sebagai 'job' sesuai skema Zod */}
           <input {...register("job")} placeholder="Pekerjaan" className="border p-2 rounded w-full" />
           {errors.job && <p className="text-red-500 text-xs mt-1">{errors.job.message}</p>}
         </div>
