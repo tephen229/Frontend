@@ -5,12 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 
 // ===== SERVICE =====
-const BASE_URL = "https://backend-pied-nine-13.vercel.app/events";
-const CATEGORY_URL = "https://backend-pied-nine-13.vercel.app/categories";
-const PEMBICARA_URL = "https://backend-pied-nine-13.vercel.app/speakers"; 
+const BASE_URL = "http://localhost:3000/events";
+const CATEGORY_URL = "http://localhost:3000/categories";
+const PEMBICARA_URL = "http://localhost:3000/speakers"; 
 
 type Category = { id: number; name: string };
-type Pembicara = { id: number; name: string }; 
+type Pembicara = { id: number; name: string };
 
 const getCategories = async (): Promise<Category[]> => {
   const res = await fetch(CATEGORY_URL);
@@ -30,7 +30,7 @@ const getPembicara = async (): Promise<Pembicara[]> => {
 const schema = z.object({
   name: z.string().min(3, "Nama event minimal 3 karakter"),
   categoryId: z.string().min(1, "Kategori wajib dipilih"),
-  pembicaraId: z.string().min(1, "Pembicara wajib dipilih"), 
+  pembicaraId: z.string().min(1, "Pembicara wajib dipilih"),
   date: z.string().min(1, "Tanggal wajib diisi"),
   location: z.string().min(3, "Lokasi minimal 3 karakter"),
   description: z.string().min(5, "Deskripsi minimal 5 karakter"),
@@ -42,7 +42,7 @@ type FormData = z.infer<typeof schema>;
 export default function EventCreate() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [speakers, setSpeakers] = useState<Pembicara[]>([]); 
+  const [speakers, setSpeakers] = useState<Pembicara[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,10 +50,10 @@ export default function EventCreate() {
       try {
         setLoading(true);
         const [catData, speakerData] = await Promise.all([getCategories(), getPembicara()]);
-        
-        console.log("Data Kategori:", catData);   
-        console.log("Data Pembicara:", speakerData); 
-        
+
+        console.log("Data Kategori:", catData);
+        console.log("Data Pembicara:", speakerData);
+
         setCategories(catData);
         setSpeakers(speakerData);
       } catch (error) {
@@ -82,16 +82,16 @@ export default function EventCreate() {
           dateEvent: data.date,
           location: data.location,
           categoryId: Number(data.categoryId),
-          pembicaraId: Number(data.pembicaraId), 
+          pembicaraId: Number(data.pembicaraId),
           description: data.description,
         }),
       });
 
       if (!res.ok) throw new Error("Gagal menyimpan data ke server");
-      
+
       alert("Event berhasil dibuat!");
       navigate("/dashboard/event");
-      
+
     } catch (error) {
       console.error(error);
       alert("Gagal membuat event. Cek koneksi ke server.");

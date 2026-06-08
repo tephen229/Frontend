@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 
 // ===== PERBAIKAN 1: Gunakan domain "-six" dan rute yang aktif di Vercel yaitu "/speakers"
-const BASE_URL = "https://backend-pied-nine-13.vercel.app/speakers";
+const BASE_URL = "http://localhost:3000/speakers";
 
 type PembicaraPayload = {
   name: string;

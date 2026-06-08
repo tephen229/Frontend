@@ -1,14 +1,12 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import InputText from "../components/ui/Input";
-import Button from "../components/ui/Button";
 import InputPassword from "../components/ui/InputPassword";
 import { Link } from "react-router-dom";
-
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
+import { useState } from "react"; // Tambahan untuk mengelola state loading/error jika diperlukan
 
 type FormData = {
   username: string;
@@ -16,13 +14,14 @@ type FormData = {
 };
 
 const schema = z.object({
-  username: z.string().min(1, "Username harus diisi"),
-  password: z.string().min(8, "Minimal 8 Karakter"),
+  username: z.string().min(1, "Username Harus Diisi!"),
+  password: z.string().min(1, "Password Harus Diisi!"),
 });
 
 export default function Login() {
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
+  const [loading, setLoading] = useState(false); // State untuk efek loading saat menembak API
 
   const {
     register,
@@ -30,14 +29,40 @@ export default function Login() {
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
-  const onSubmit = (data: FormData) => {
-    console.log(data);
-    if (data.username === "dwiriski" && data.password === "24090028") {
-      alert("Login Berhasil");
-      login(data.username);
-      navigate("/dashboard");
-    } else {
-      alert("Login Gagal: Username atau Password salah");
+  // Fungsi onSubmit yang sudah terintegrasi dengan database melalui API backend
+  const onSubmit = async (data: FormData) => {
+    setLoading(true);
+    try {
+      const response = await fetch("http://localhost:3000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: data.username,
+          password: data.password,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        alert("Login Berhasil!");
+        
+        // Sesuaikan argumen di bawah dengan struktur store Zustand milikmu.
+        // Umumnya menyimpan token dan data user yang dikirim dari backend:
+        login(result.data.user.username);
+        
+        navigate("/dashboard");
+      } else {
+        // Menampilkan pesan error spesifik dari backend (misal: "Username atau password salah")
+        alert(`Login Gagal: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error login:", error);
+      alert("Terjadi kesalahan! Gagal terhubung ke server backend.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,9 +71,8 @@ export default function Login() {
       {/* Container Utama Split Screen */}
       <div className="w-full max-w-5xl bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden grid grid-cols-1 md:grid-cols-2 min-h-[550px]">
         
-        {/* 🌟 SISI KIRI: 50% GAMBAR & VISUAL INVOFEST (Sembunyi di HP, muncul di MD ke atas) */}
+        {/* 🌟 SISI KIRI: 50% GAMBAR & VISUAL INVOFEST */}
         <div className="hidden md:flex flex-col justify-between p-10 bg-gradient-to-br from-red-950 via-red-900 to-amber-950 text-white relative overflow-hidden">
-          {/* Aksen Dekorasi Cahaya Pudar di Background */}
           <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
           <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl"></div>
 
@@ -57,7 +81,7 @@ export default function Login() {
             <img 
               src="https://www.invofest-harkatnegeri.com/assets/text-image.png" 
               alt="INVOFEST Logo" 
-              className="h-10 w-auto object-contain brightness-0 invert" // Mengubah logo teks menjadi putih bersih
+              className="h-10 w-auto object-contain brightness-0 invert"
             />
           </div>
 
@@ -81,7 +105,7 @@ export default function Login() {
           </div>
         </div>
 
-        {/* 📝 SISI KANAN: 50% FORM LOGIN (Lebar penuh di HP, setengah di laptop) */}
+        {/* 📝 SISI KANAN: 50% FORM LOGIN */}
         <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-16">
           
           {/* Header internal form */}
@@ -111,12 +135,16 @@ export default function Login() {
             />
 
             <div className="pt-2">
-              <Button 
-                label="Masuk Sekarang" 
-                variant="primary" 
-                className="w-full py-3 font-semibold shadow-md shadow-red-900/10 hover:shadow-lg transition-all" 
-              />
-            </div>
+  <button 
+    type="submit"
+    disabled={loading} // Sekarang dijamin tidak akan error karena ini tag bawaan HTML
+    className={`w-full py-3 font-semibold text-white bg-red-800 rounded-xl shadow-md shadow-red-900/10 hover:shadow-lg hover:bg-red-900 transition-all ${
+      loading ? "opacity-50 cursor-not-allowed" : ""
+    }`}
+  >
+    {loading ? "Menghubungkan..." : "Masuk Sekarang"}
+  </button>
+</div>
 
             {/* Link Register / Daftar */}
             <div className="text-center md:text-left text-sm text-gray-600 pt-4 border-t border-gray-100 mt-6 flex flex-col sm:flex-row justify-between gap-2">

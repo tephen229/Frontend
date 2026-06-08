@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-const BASE_URL = "https://backend-pied-nine-13.vercel.app/categories";
+const BASE_URL = "http://localhost:3000/categories";
 
 type Category = {
   id: number;

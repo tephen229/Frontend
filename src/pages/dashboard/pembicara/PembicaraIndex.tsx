@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 // ===== SERVICE =====
-const BASE_URL = "https://backend-pied-nine-13.vercel.app/speakers";
+const BASE_URL = "http://localhost:3000/speakers";
 
 type Pembicara = {
   id: number;
